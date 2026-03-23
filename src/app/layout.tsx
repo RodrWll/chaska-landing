@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import Navbar from "@/components/sections/Navbar";
+import Footer from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "Chaska Robotics | PUCP",
@@ -23,8 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={cn("dark", "font-sans", geist.variable)}>
-      <body>{children}</body>
+    <html lang="es" className="dark">
+      <body>
+        <Navbar />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

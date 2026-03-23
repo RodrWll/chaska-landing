@@ -3,8 +3,8 @@ export const TEAM_INFO = {
   university: "PUCP",
   foundedYear: 2025,
   email: "chaska.roverteam@gmail.com",
-  instagram: "@chaska",
-  instagramUrl: "https://instagram.com/chaska",
+  instagram: "@chaskarover.pucp",
+  instagramUrl: "https://www.instagram.com/chaskarover.pucp",
 };
 
 export const RECRUITMENT_ENABLED =

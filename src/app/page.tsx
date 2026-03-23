@@ -1,9 +1,15 @@
+import Hero from "@/components/sections/Hero";
+import About from "@/components/sections/About";
+import Teams from "@/components/sections/Teams";
+import Gallery from "@/components/sections/Gallery";
+
 export default function Home() {
   return (
     <main>
-      <p className="text-chaska-orange text-2xl font-headline p-8">
-        ¡Chaska está vivo! 🚀
-      </p>
+      <Hero />
+      <About />
+      <Teams />
+      <Gallery />
     </main>
   );
 }
