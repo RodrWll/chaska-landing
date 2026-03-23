@@ -67,29 +67,13 @@ export default function Gallery() {
           </span>
 
           <div className="relative w-full aspect-video bg-surface-container rounded-sm overflow-hidden border border-white/10">
-            {YOUTUBE_VIDEO_ID !== "REEMPLAZAR_CON_ID" ? (
-              // Video real de YouTube
-              <iframe
+            <iframe
                 src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1`}
                 title="Chaska Rover — Video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 w-full h-full"
               />
-            ) : (
-              // Placeholder mientras no hay video real
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-surface-container-low">
-                <div className="w-16 h-16 rounded-full bg-chaska-orange/20 flex items-center justify-center">
-                  <Play size={28} className="text-chaska-orange ml-1" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-bold text-white">Video del Rover</p>
-                  <p className="text-xs text-on-surface-variant mt-1">
-                    Agrega el ID del video en YOUTUBE_VIDEO_ID
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
