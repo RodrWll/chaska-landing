@@ -99,6 +99,7 @@ export default function Recruitment() {
 
   // Estado del archivo CV seleccionado
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvError, setCvError] = useState<string | null>(null);
 
   // Estado del envío: idle | loading | success | error
   const [submitStatus, setSubmitStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -122,58 +123,59 @@ export default function Recruitment() {
   // ── FUNCIÓN DE ENVÍO ──────────────────────────────────────
   // Se ejecuta solo si Zod validó todos los campos correctamente
   const onSubmit = async (data: ApplicationForm) => {
-    setSubmitStatus("loading");
-    setErrorMessage("");
+  setSubmitStatus("loading");
+  setErrorMessage("");
 
-    try {
-      let cv_url = "";
+  try {
+    let cv_url = "";
 
-      // Si el usuario adjuntó un CV, lo subimos primero a Storage
-      if (cvFile) {
-        // Creamos un nombre único para evitar colisiones
-        const fileName = `${Date.now()}_${cvFile.name.replace(/\s/g, "_")}`;
+    // Subida del CV — sigue yendo directo a Storage desde el navegador
+    // porque los archivos son demasiado grandes para pasar por el API Route
+    if (cvFile) {
+      const fileName = `${Date.now()}_${cvFile.name.replace(/\s/g, "_")}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("cvs")          // nombre del bucket en Supabase
-          .upload(fileName, cvFile, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+      const { error: uploadError } = await supabase.storage
+        .from("cvs")
+        .upload(fileName, cvFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
 
-        if (uploadError) throw new Error("Error subiendo el CV");
-
-        // Obtenemos la URL pública del archivo subido
-        const { data: urlData } = supabase.storage
-          .from("cvs")
-          .getPublicUrl(fileName);
-
-        cv_url = urlData.publicUrl;
+      if (uploadError) {
+        console.error("Supabase Storage error:", uploadError); // ← agrega esto
+        throw new Error("Error subiendo el CV.");
       }
+      const { data: urlData } = supabase.storage
+        .from("cvs")
+        .getPublicUrl(fileName);
 
-      // Guardamos la postulación en la tabla applications
-      const { error: insertError } = await supabase
-        .from("applications")
-        .insert([{ ...data, cv_url: cv_url || null }]);
-
-      if (insertError) {
-        // Email duplicado — el más común
-        if (insertError.code === "23505") {
-          throw new Error("Este email ya tiene una postulación registrada.");
-        }
-        throw new Error("Error al enviar la postulación.");
-      }
-
-      setSubmitStatus("success");
-      reset();
-      setCvFile(null);
-
-    } catch (err: unknown) {
-      setSubmitStatus("error");
-      setErrorMessage(
-        err instanceof Error ? err.message : "Ocurrió un error inesperado."
-      );
+      cv_url = urlData.publicUrl;
     }
-  };
+
+    // Enviamos los datos al API Route — ya no a Supabase directo
+    const response = await fetch("/api/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...data, cv_url: cv_url || undefined }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error ?? "Error al enviar la postulación.");
+    }
+
+    setSubmitStatus("success");
+    reset();
+    setCvFile(null);
+
+  } catch (err: unknown) {
+    setSubmitStatus("error");
+    setErrorMessage(
+      err instanceof Error ? err.message : "Ocurrió un error inesperado."
+    );
+  }
+};
 
   // ── VISTA: CONVOCATORIA CERRADA ───────────────────────────
   if (!RECRUITMENT_ENABLED) {
@@ -402,27 +404,67 @@ export default function Recruitment() {
               </Field>
 
               {/* CV Upload */}
-              <Field label="CV (PDF, máx. 5MB)">
+                <Field label="CV (PDF, máx. 5MB)">
                 <label className="flex items-center gap-3 w-full border border-dashed border-white/20 hover:border-chaska-orange/50 px-4 py-4 rounded-sm cursor-pointer transition-colors duration-200 group">
-                  <Upload size={16} className="text-on-surface-variant group-hover:text-chaska-orange transition-colors" />
-                  <span className="text-sm text-on-surface-variant group-hover:text-white transition-colors">
+                    <Upload
+                    size={16}
+                    className="text-on-surface-variant group-hover:text-chaska-orange transition-colors shrink-0"
+                    />
+                    <span className="text-sm text-on-surface-variant group-hover:text-white transition-colors truncate">
                     {cvFile ? cvFile.name : "Seleccionar archivo..."}
-                  </span>
-                  <input
+                    </span>
+                    <input
                     type="file"
-                    accept=".pdf"
+                    accept=".pdf,application/pdf"
                     className="hidden"
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && file.size <= 5 * 1024 * 1024) {
+                        // Limpiamos errores anteriores
+                        setCvError(null);
+                        setCvFile(null);
+
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        // Validación 1 — tipo de archivo
+                        // Verificamos tanto la extensión como el MIME type
+                        const isPdf =
+                        file.type === "application/pdf" ||
+                        file.name.toLowerCase().endsWith(".pdf");
+
+                        if (!isPdf) {
+                        setCvError("Solo se aceptan archivos PDF.");
+                        e.target.value = ""; // limpiamos el input
+                        return;
+                        }
+
+                        // Validación 2 — tamaño máximo 5MB
+                        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                        if (file.size > maxSize) {
+                        setCvError(
+                            `El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)}MB. El máximo es 5MB.`
+                        );
+                        e.target.value = "";
+                        return;
+                        }
+
+                        // Todo ok — guardamos el archivo
                         setCvFile(file);
-                      } else if (file) {
-                        alert("El archivo supera los 5MB.");
-                      }
                     }}
-                  />
+                    />
                 </label>
-              </Field>
+
+                {/* Mensaje de error del CV */}
+                {cvError && (
+                    <p className="text-xs text-red-400 mt-0.5">{cvError}</p>
+                )}
+
+                {/* Confirmación visual cuando el archivo es válido */}
+                {cvFile && !cvError && (
+                    <p className="text-xs text-chaska-orange mt-0.5">
+                    ✓ {(cvFile.size / 1024 / 1024).toFixed(2)}MB — listo para subir
+                    </p>
+                )}
+                </Field>
 
               {/* Error general */}
               {submitStatus === "error" && (
@@ -434,7 +476,7 @@ export default function Recruitment() {
               {/* Botón submit */}
               <button
                 type="submit"
-                disabled={submitStatus === "loading"}
+                disabled={submitStatus === "loading" || !!cvError}
                 className="
                   w-full flex items-center justify-center gap-2
                   bg-chaska-orange hover:bg-chaska-orange/90
