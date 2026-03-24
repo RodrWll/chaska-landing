@@ -63,7 +63,7 @@ export default function About() {
           </span>
           <h2 className="font-headline font-black text-4xl md:text-5xl tracking-tighter text-white mt-3">
             Nuevos. Serios.<br />
-            <span className="text-chaska-orange">Comprobados.</span>
+            <span className="text-chaska-orange">Innovadores.</span>
           </h2>
           <p className="text-on-surface-variant leading-relaxed mt-4">
             Chaska — "estrella" en quechua — nació en la PUCP con una misión

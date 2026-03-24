@@ -56,7 +56,7 @@ export default function Hero() {
 
         {/* Subtítulo */}
         <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-xl">
-          Somos el equipo de robótica de la PUCP. Diseñamos, construimos y
+          Somos el único equipo de robótica de la PUCP. Diseñamos, construimos y
           competimos con un rover en las competencias más exigentes del planeta.
         </p>
 
