@@ -7,7 +7,7 @@ export const TEAM_INFO = {
   instagramUrl: "https://www.instagram.com/chaskarover.pucp",
 };
 
-export const RECRUITMENT_ENABLED =
+export const RECRUITMENT_ENABLED = 
   process.env.NEXT_PUBLIC_RECRUITMENT_ENABLED === "true";
 
   // Los 9 sub-equipos del rover

@@ -21,7 +21,7 @@ export default function Hero() {
       ──────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 z-0">
         {/* Gradiente base — simula el fondo oscuro del diseño */}
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
+        <div className="absolute inset-0 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950" />
 
         {/* Acento naranja sutil en la esquina — da profundidad */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-chaska-orange/10 blur-3xl rounded-full" />
