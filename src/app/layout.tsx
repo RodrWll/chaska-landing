@@ -4,14 +4,31 @@ import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
-  title: "Chaska Robotics | PUCP",
+  title: "Chaska Robotics | Equipo de Robótica PUCP",
   description:
-    "Equipo de robótica de la PUCP que compite en URC y ERC. Ingeniería de precisión para entornos extremos.",
-  keywords: ["robótica", "PUCP", "URC", "ERC", "rover", "Chaska"],
+    "Chaska es el equipo de robótica de la PUCP que compite en URC y ERC. Diseñamos y construimos rovers para exploración espacial y aplicaciones terrestres.",
+  keywords: [
+    "robótica", "PUCP", "URC", "ERC", "rover", "Chaska",
+    "ingeniería", "Peru", "competencia robótica"
+  ],
+  authors: [{ name: "Chaska Robotics PUCP" }],
   openGraph: {
-    title: "Chaska Robotics",
-    description: "Equipo de robótica universitaria — PUCP",
+    title: "Chaska Robotics | PUCP",
+    description:
+      "Equipo de robótica universitaria que lleva la ingeniería peruana al mundo.",
     type: "website",
+    locale: "es_PE",
+    siteName: "Chaska Robotics",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chaska Robotics | PUCP",
+    description:
+      "Equipo de robótica universitaria que lleva la ingeniería peruana al mundo.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
